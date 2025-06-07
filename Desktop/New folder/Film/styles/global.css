@@ -1,0 +1,47 @@
+@import "tailwindcss";
+@layer base {
+  body {
+    @apply bg-slate-900  px-5 text-white;
+    
+  }
+}
+.page-container {
+  max-width: 1920px;
+  height: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+.banner .swiper {
+  height: 100%;
+  width: 100%;
+}
+.movie-list .swiper-slide {
+  width: 550px;
+  height: auto;
+}
+/* .banner .swiper {
+            height :100%;
+        } */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  cursor: pointer;
+}
+.bg-primary {
+  background-color: #f52582;
+  color: white;
+}
+
+.bg-secondary {
+  background-color: #6f5cf1;
+  color: white;
+}
+.primary {
+  color: #1d05b8;
+}
+.secondary {
+  color: #084ba3;
+}
