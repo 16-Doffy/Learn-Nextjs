@@ -24,9 +24,10 @@ export default async function Dashboard() {
       <h1>All List Doffy</h1>
       <Suspense fallback={<div>Loading....</div>}> 
       {(data || []).map((item) => (
-        <Link href={'/dashboard/' + item.userId} key={item.id}>
+        <Link href={'/dashBoard/' + item.id} key={item?.id}>
           <div className={styles.single}>
-            <h3>{item.title}</h3>
+            
+            <h3>{item?.title}</h3>
           </div>
         </Link>
       ))}

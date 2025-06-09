@@ -11,9 +11,8 @@ export default function Home() {
         impedit, eveniet cumque. Corporis, sit voluptas.
       </p>
       <p className={styles.text}>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Sit dicta, laboriosam aliquid,
-        numquam totam fuga, a quo veniam nulla animi temporibus omnis provident impedit molestias!
-        Numquam provident nemo nobis eum!
+        Lorem .....
+
       </p>
      <div className='text-black  
       m-auto text-xl bg-blue-300 w-50  
