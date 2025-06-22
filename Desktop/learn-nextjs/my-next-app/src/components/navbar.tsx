@@ -23,7 +23,7 @@ export default function Navbar() {
     
        <div className=" grid grid-cols-5 ml-auto pr-20 mt-15 space-x-10 text-3xl  font-sans">
         <Link href="/">Home</Link>
-        <Link href="/about">About</Link>
+        <Link href="/aboutPage">About</Link>
         <Link href="/dashBoard">dashboard</Link>
         <Link href="/search">Search Film</Link>
          <Link href="/search/select-movie">Select Movie</Link>

@@ -8,7 +8,7 @@ import Banner from '@/components/search/Banner';
 import MovieCard from '@/components/search/MovieCard';
 import Footer from '@/components/footer';
 import MoviePages from './search/page';
-
+import 'antd/dist/reset.css';
 interface Movie {
   id: number;
   title: string;

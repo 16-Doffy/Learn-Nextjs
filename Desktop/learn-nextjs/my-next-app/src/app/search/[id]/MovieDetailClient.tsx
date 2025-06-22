@@ -50,7 +50,7 @@ const MovieDetail = () => {
           
           // Fetch movie details
           const movieData = await fetcher(
-            `https://api.themoviedb.org/3/movie/${id}?api_key=733d08f3b55d5c3b516692a4f30a1ff7`
+            `https://api.themoviedb.org/3/movie/${id}?api_key=733d08f3b55d5c3b516692a4f30a1ff7&page=2`
           );
           setMovie(movieData);
           
@@ -186,10 +186,16 @@ const MovieDetail = () => {
           </div>
         )}
         {/* Showtimes section */}
-<div className="mt-16 w-full">
-  <h2 className="text-center text-4xl text-white mb-6 font-sans">Suất chiếu</h2>
-
-  <div className="flex flex-wrap justify-center gap-4 mb-4">
+      </div>
+            <div className="m-2 w-full ">
+  <div className='flex flex-col-2 gap-2  ml-auto'>
+       <h1 className='w-2 h-7 bg-slate-600'></h1>         
+  <h2 className="text-2xl text-white mb-6 font-sans">Lịch chiếu</h2>
+  </div>
+  
+<div className='flex flex-col ml-auto'>
+  <div className='  font-sans text-2xl m-2 bg-linear-to-b from-red-500 to-purple-300 bg-clip-text text-transparent'><h1>Galaxy Cypher Punk Cinema</h1></div>
+    <div className="flex flex-wrap  gap-4 m-2 ml-20">
     {Array.from({ length: 5 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() + i);
@@ -197,19 +203,22 @@ const MovieDetail = () => {
       return (
         <button
           key={dateStr}
-          className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-800"
-        >
+          className="bg-slate-600 font-sans text-white px-2 py-2 rounded-sm hover:bg-blue-800"
+              onClick={() =>
+          alert(`Bạn đã chọn suất chiếu lúc ${dateStr}`)
+        }
+       >
           {dateStr}
         </button>
       );
     })}
   </div>
 
-  <div className="flex flex-wrap justify-center gap-4">
+  <div className="flex flex-wrap  gap-4 ml-20">
     {["10:00", "14:00", "18:00", "21:00"].map((time) => (
       <button
         key={time}
-        className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-800"
+          className=" bg-slate-600 font-sans text-white px-2 py-2 rounded-sm hover:bg-blue-800"
         onClick={() =>
           alert(`Bạn đã chọn suất chiếu lúc ${time}`)
         }
@@ -219,9 +228,9 @@ const MovieDetail = () => {
     ))}
   </div>
 </div>
-
-      </div>
+</div>
     </div>
+   
   );
 };
 

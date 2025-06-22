@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface FoodItem {
   id: number;
@@ -162,7 +163,7 @@ const FoodSelection: React.FC = () => {
               boxShadow: "0 2px 8px rgba(229,57,85,0.15)",
             }}
           >
-            Continue Booking
+           <Link href='confirmation'>Continute Booking</Link>
           </button>
         </div>
       </div>
