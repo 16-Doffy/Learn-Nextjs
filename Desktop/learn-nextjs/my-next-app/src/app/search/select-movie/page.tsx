@@ -3,258 +3,265 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import axios from 'axios';
-import Footer from '@/components/footer';
-import MoviePages from '../page';
-
 
 interface MovieItem {
   id: number;
   title: string;
+  original_title: string;
   vote_average: number;
   release_date: string;
   poster_path: string;
-  overview?: string;
+  overview: string;
+  runtime: number;
+  genres: { id: number; name: string }[];
+  certification?: string;
 }
 
-const MovieBookingSystem = () => {
+const CinemaSchedule = () => {
   const [movies, setMovies] = useState<MovieItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMovieId, setSelectedMovieId] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedMovie, setSelectedMovie] = useState<MovieItem | null>(null);
   const [selectedTime, setSelectedTime] = useState<string>('');
   const [name, setName] = useState<string>('');
-  const [availableDates, setAvailableDates] = useState<string[]>([]);
-  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
   const [confirmedBooking, setConfirmedBooking] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'booking'>('list');
 
-  // Fetch danh sách phim
+  // Generate dates for the next 7 days
+  const availableDates = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() + i);
+    return date.toISOString().split('T')[0];
+  });
+
+  // Mock showtimes
+  const movieShowtimes: Record<number, string[]> = {
+    1: ['10:00', '13:00', '16:00', '19:00'],
+    2: ['11:00', '14:00', '17:00', '20:00'],
+    3: ['12:00', '15:00', '18:00', '21:00'],
+  };
+
+  const certifications: Record<string, string> = {
+    P: 'Phổ thông',
+    K: 'Khuyến nghị',
+    T13: 'C13 - Cấm dưới 13',
+  };
+
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         const res = await axios.get(
-          'https://api.themoviedb.org/3/movie/popular?api_key=733d08f3b55d5c3b516692a4f30a1ff7&language=vi-VN',
+          'https://api.themoviedb.org/3/movie/now_playing?api_key=733d08f3b55d5c3b516692a4f30a1ff7&language=vi-VN&region=VN'
         );
-        setMovies(res.data.results);
+
+        const moviesWithDetails = res.data.results.slice(0, 3).map((movie: any, index: number) => ({
+          ...movie,
+          runtime: [126, 119, 105][index % 3],
+          genres: [
+            { id: 1, name: 'Action' },
+            { id: 2, name: 'Adventure' },
+          ].slice(0, 2),
+          certification: ['P', 'K', 'T13'][index % 3],
+        }));
+
+        setMovies(moviesWithDetails);
+        setSelectedDate(availableDates[0]);
       } catch (error) {
         console.error('Error fetching movies:', error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchMovies();
   }, []);
 
-  // Cập nhật ngày chiếu khi chọn phim
-  useEffect(() => {
-    if (!selectedMovieId) return;
-
-    // Giả lập việc lấy ngày chiếu có sẵn cho phim đã chọn
-    const fetchAvailableDates = async () => {
-      const dates = ['2025-05-14', '2025-05-15', '2025-05-16']; // Ví dụ ngày
-      setAvailableDates(dates);
-      setSelectedDate('');
-      setSelectedTime('');
-      setConfirmedBooking(false);
-    };
-
-    fetchAvailableDates();
-  }, [selectedMovieId]);
-
-  // Cập nhật giờ chiếu khi chọn ngày
-  useEffect(() => {
-    if (!selectedDate) {
-      setAvailableTimes([]);
-      return;
-    }
-
-    // Giả lập việc lấy giờ chiếu có sẵn cho ngày đã chọn
-    const fetchAvailableTimes = async () => {
-      const times = ['10:00', '14:00', '18:00', '21:00']; // Ví dụ giờ
-      setAvailableTimes(times);
-      setSelectedTime('');
-      setConfirmedBooking(false);
-    };
-
-    fetchAvailableTimes();
-  }, [selectedDate]);
-
-  const handleBooking = () => {
-    if (!selectedMovieId) return alert('Vui lòng chọn phim');
-    if (!selectedDate) return alert('Vui lòng chọn ngày chiếu');
-    if (!selectedTime) return alert('Vui lòng chọn giờ chiếu');
-    if (!name.trim()) return alert('Vui lòng nhập tên của bạn');
-
-    setConfirmedBooking(true);
+  const formatRuntime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h${mins}'`;
   };
 
-  const selectedMovie = movies.find((m) => m.id === Number(selectedMovieId));
-
-  if (loading) return <div className="text-center py-10">Đang tải phim...</div>;
+  if (loading) return <div className="text-center py-10">Đang tải lịch chiếu...</div>;
 
   return (
-  
-    <div className="w-full h-auto bg-linear-to-l from-red-500 to-black py-10 mt-2 p-2">
-      {viewMode === 'list' ? (
-        <>
-          <h1 className="text-3xl font-bold text-center bg-gradient-to-t from-red-400 to-white bg-clip-text text-transparent mb-8">
-            Danh sách phim đang chiếu
-          </h1>
-            <MoviePages/>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {movies.map((movie) => (
-              <div key={movie.id} className="movie-card flex flex-col gap-2 rounded-lg p-4 text-white h-full select-none shadow-lg">
-                <div className="relative h-150 overflow-hidden rounded-lg">
-                  <Image
-                    src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                    alt={movie.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="flex flex-col flex-grow pt-3">
-                  <h3 className="text-xl font-bold mb-2 line-clamp-2">{movie.title}</h3>
-                  <div className="flex justify-between items-center mt-auto">
-                    <span className="bg-slate-800 font-sans px-2 py-1 rounded text-lg">
-                      {movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A'}
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-center mb-8">Lịch chiếu phim</h1>
+
+      {/* Date selector */}
+      <div className="flex overflow-x-auto gap-2 mb-6 pb-2">
+        {availableDates.map((date) => (
+          <button
+            key={date}
+            onClick={() => setSelectedDate(date)}
+            className={`px-4 py-2 rounded-lg whitespace-nowrap ${
+              selectedDate === date ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'
+            }`}
+          >
+            {new Date(date).toLocaleDateString('vi-VN', {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'numeric',
+            })}
+          </button>
+        ))}
+      </div>
+
+      {/* Movies list */}
+      <div className="space-y-8">
+        {movies.map((movie) => (
+          <div key={movie.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="p-4 md:p-6">
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* Movie poster (Link to detail) */}
+                <Link 
+                  href={`/search/${movie.id}`} 
+                  className="w-full md:w-1/4 lg:w-1/5 hover:opacity-90 transition-opacity"
+                >
+                  <div className="relative aspect-[2/3] rounded-lg overflow-hidden">
+                    <Image
+                      src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                      alt={movie.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                </Link>
+
+                {/* Movie info */}
+                <div className="flex-1">
+                  <Link href={`/movies/${movie.id}`}>
+                    <h2 className="text-2xl font-bold hover:text-blue-600">{movie.title}</h2>
+                  </Link>
+                  <p className="text-gray-600 italic">{movie.original_title}</p>
+
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {movie.genres.map((genre) => (
+                      <span key={genre.id} className="bg-gray-100 px-2 py-1 rounded text-sm">
+                        {genre.name}
+                      </span>
+                    ))}
+                    <span className="bg-gray-100 px-2 py-1 rounded text-sm">
+                      {formatRuntime(movie.runtime)}
                     </span>
-                    <div className="flex items-center">
-                      <span className="font-bold">{movie.vote_average.toFixed(1)}</span>
-                      <span className="text-yellow-400 ml-1 text-xl font-sans">/10 IMDb</span>
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+                      {certifications[movie.certification || 'P']}
+                    </span>
+                  </div>
+
+                  <p className="mt-3 text-gray-700 line-clamp-3">{movie.overview}</p>
+
+                  {/* Showtimes */}
+                  <div className="mt-4">
+                    <h3 className="font-semibold mb-2">2D Phụ đề Việt</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {movieShowtimes[movie.id]?.map((time) => (
+                        <button
+                          key={time}
+                          onClick={() => {
+                            setSelectedMovie(movie);
+                            setSelectedTime(time);
+                            setConfirmedBooking(false);
+                          }}
+                          className={`px-4 py-2 rounded ${
+                            selectedMovie?.id === movie.id && selectedTime === time
+                              ? 'bg-red-600 text-white'
+                              : 'bg-gray-200 hover:bg-gray-300'
+                          }`}
+                        >
+                          {time}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2 mt-4">
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Booking form */}
+      {selectedMovie && selectedTime && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4">Đặt vé xem phim</h2>
+
+            <div className="mb-4">
+              <h3 className="font-bold">{selectedMovie.title}</h3>
+              <p className="text-gray-600">
+                {new Date(selectedDate).toLocaleDateString('vi-VN', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                })}
+                {' • '}
+                {selectedTime}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                {certifications[selectedMovie.certification || 'P']}
+              </p>
+            </div>
+
+            {!confirmedBooking ? (
+              <>
+                <div className="mb-4">
+                  <label className="block mb-2 font-medium">Tên của bạn</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border rounded"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Nhập họ tên đầy đủ"
+                  />
+                </div>
+
+                <div className="flex gap-2">
                   <button
                     onClick={() => {
-                      setSelectedMovieId(movie.id.toString());
-                      setViewMode('booking');
+                      setSelectedMovie(null);
+                      setSelectedTime('');
                     }}
-                    className="flex-grow bg-gradient-to-r from-black to-blue-900 text-white py-2 rounded text-center hover:from-blue-700 transition-colors"
+                    className="flex-1 py-2 bg-gray-300 hover:bg-gray-400 rounded"
                   >
-                    Đặt vé
+                    Hủy
                   </button>
-                  <Link
-                    href={`/search/${movie.id}`}
-                    className="flex-grow bg-gradient-to-r from-black to-red-900 !text-white py-2 rounded text-center hover:from-red-700 transition-colors"
+                  <button
+                    onClick={handleBooking}
+                    className="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded"
                   >
-                    Chi tiết
-                  </Link>
+                    Tiếp tục
+                  </button>
                 </div>
-              </div>
-            ))}
-          </div>
-          <Footer />
-        </>
-      ) : (
-        <div className="max-w-xl mx-auto p-6 bg-slate-800 rounded-lg shadow-lg text-black">
-          <button
-            onClick={() => setViewMode('list')}
-            className="mb-4 flex items-center text-blue-400 hover:text-blue-300"
-          >
-            Quay lại danh sách phim
-          </button>
-          <h2 className="text-2xl font-bold mb-6 text-center text-red-300">Đặt vé xem phim</h2>
-          {selectedMovie && (
-            <div className="flex items-center mb-6 p-4 bg-slate-700 rounded-lg">
-              <div className="relative w-20 h-28 flex-shrink-0 text-white">
-                <Image
-                  src={`https://image.tmdb.org/t/p/w200${selectedMovie.poster_path}`}
-                  alt={selectedMovie.title}
-                  fill
-                  className="object-cover rounded"
-                />
-              </div>
-              <div className="ml-4">
-                <h3 className="text-xl font-bold">{selectedMovie.title}</h3>
-                <div className="flex items-center mt-1">
-                  <span className="text-yellow-400 mr-1">★</span>
-                  <span>{selectedMovie.vote_average.toFixed(1)}/10</span>
+              </>
+            ) : (
+              <div className="text-center">
+                <div className="mb-4 p-4 bg-green-100 rounded-lg">
+                  <p className="font-bold text-green-800">Đặt vé thành công!</p>
+                  <p className="mt-1">{name}</p>
                 </div>
+
+                <Link
+                  href={{
+                    pathname: '/seat',
+                    query: {
+                      movieId: selectedMovie.id,
+                      movieTitle: selectedMovie.title,
+                      date: selectedDate,
+                      time: selectedTime,
+                      name: name,
+                    },
+                  }}
+                  className="inline-block w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                >
+                  Chọn ghế ngồi
+                </Link>
               </div>
-            </div>
-          )}
-          <div className="space-y-4">
-            <div>
-              <label className="block mb-2">Ngày chiếu:</label>
-              <select
-                className="w-full p-2 rounded bg-slate-700 border border-slate-600"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                disabled={!selectedMovieId}
-              >
-                <option value="">-- Chọn ngày --</option>
-                {availableDates.map((date) => (
-                  <option key={date} value={date}>
-                    {new Date(date).toLocaleDateString('vi-VN')}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block mb-2">Giờ chiếu:</label>
-              <select
-                className="w-full p-2 rounded bg-slate-700 border border-slate-600"
-                value={selectedTime}
-                onChange={(e) => setSelectedTime(e.target.value)}
-                disabled={!selectedDate}
-              >
-                <option value="">-- Chọn giờ --</option>
-                {availableTimes.map((time) => (
-                  <option key={time} value={time}>
-                    {time}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block mb-2">Tên của bạn:</label>
-              <input
-                type="text"
-                className="w-full p-2 rounded bg-slate-700 border border-slate-600"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Nhập họ tên đầy đủ"
-              />
-            </div>
+            )}
           </div>
-          <button
-            onClick={handleBooking}
-            className="w-full mt-6 bg-red-600 hover:bg-red-700 py-3 rounded-lg font-bold transition-colors"
-            disabled={confirmedBooking}
-          >
-            {confirmedBooking ? 'Đã xác nhận' : 'Xác nhận đặt vé'}
-          </button>
-          {confirmedBooking && selectedMovie && (
-            <div className="mt-6 p-4 bg-green-900/50 border border-green-500 rounded-lg">
-              <h3 className="text-xl font-bold mb-3 text-green-400">Đặt vé thành công!</h3>
-              <div className="space-y-2">
-                <p>
-                  <span className="font-semibold">Phim:</span> {selectedMovie.title}
-                </p>
-                <p>
-                  <span className="font-semibold">Ngày:</span> {new Date(selectedDate).toLocaleDateString('vi-VN')}
-                </p>
-                <p>
-                  <span className="font-semibold">Suất chiếu:</span> {selectedTime}
-                </p>
-                <p>
-                  <span className="font-semibold">Người đặt:</span> {name}
-                </p>
-              </div>
-              <Link
-                href={`/seat?movie=${selectedMovie.id}&date=${selectedDate}&time=${selectedTime}`}
-                className="inline-block mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium"
-              >
-                Chọn ghế ngồi
-              </Link>
-            </div>
-          )}
         </div>
       )}
     </div>
   );
 };
 
-export default MovieBookingSystem;
+export default CinemaSchedule;

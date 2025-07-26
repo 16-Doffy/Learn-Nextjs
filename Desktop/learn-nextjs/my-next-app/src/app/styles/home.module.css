@@ -17,3 +17,81 @@
     color: white;
     text-align: center;
 }
+.container {
+ height: auto;
+  width: 100%; 
+  padding: 0 0.5rem;
+  margin-top: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+ padding: 2px;
+  background-image: url('https://mekoong.com/wp-content/uploads/2022/12/Hinh-nen-4k-vang-sang-vu-tru.png');
+  background-size: cover;         /* ✅ ảnh phủ toàn bộ container */
+  background-position: center;    /* ✅ căn giữa ảnh */
+  background-repeat: no-repeat;   /* ✅ không lặp ảnh */
+  background-attachment: fixed;   /* ✅ cố định nền khi cuộn (tuỳ chọn) */
+}
+
+
+.main {
+  padding: 5rem 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 800px;
+  width: 100%;
+}
+
+.title {
+  font-size: 6rem;
+  font-weight: 500;
+  text-align: center;
+  background-image: linear-gradient(to bottom, #ef08e0, #f2f3f5fc);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+
+.createButton {
+  font-size: 2rem;
+  border: #f10707;
+  font-weight: 500;
+  margin: 2rem 0;
+  padding: 0.5rem 1rem;
+  background-image: linear-gradient(to top, #e50a0a, #ede3ecfc);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.posts {
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.post {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+
+}
+
+.post h2 {
+  margin: 0;
+  color: black;
+}
+
+.post p {
+  margin: 0.5rem 0 0;
+  color: #666;
+}
